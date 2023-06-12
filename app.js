@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
 
 const { PORT, DB_URI } = require('./config');
 
@@ -32,6 +33,8 @@ app.use(requestLogger);
 app.use(cookieParser());
 
 app.use(cors(corsOptions));
+
+app.use(helmet());
 
 app.use('/', require('./routes/index'));
 

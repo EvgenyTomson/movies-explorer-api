@@ -21,8 +21,6 @@ const findUser = (id, res, next) => {
 };
 
 const changeUserData = (id, newData, res, next) => {
-  console.log(newData);
-
   User.findByIdAndUpdate(id, newData, { new: true, runValidators: true })
     .orFail()
     .then((user) => res.send(user))

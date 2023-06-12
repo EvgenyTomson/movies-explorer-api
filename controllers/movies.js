@@ -10,7 +10,6 @@ module.exports.getMovies = (req, res, next) => {
     .catch(next);
 };
 
-// country, director, duration, year, description, image, trailerLink, nameRU, nameEN и thumbnail, movieId
 module.exports.createMovie = (req, res, next) => {
   Movie.create({ ...req.body, owner: req.user._id })
     .then((movie) => res.status(201).send(movie))
