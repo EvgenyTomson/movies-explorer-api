@@ -3,9 +3,12 @@ const Movie = require('../models/movie');
 const ForbiddenError = require('../errors/forbiddenError');
 const NotFoundError = require('../errors/notFoundError');
 const RequestError = require('../errors/requestError');
+const { movieErrorsMessages } = require('../constants/constants');
 
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({})
+  const currentUserId = req.user._id;
+
+  Movie.find({ owner: currentUserId })
     .then((movies) => res.status(200).send(movies))
     .catch(next);
 };
@@ -25,18 +28,18 @@ module.exports.deleteMovie = (req, res, next) => {
     .then((movie) => {
       const ownerId = movie.owner.toString();
       if (ownerId !== currentUserId) {
-        throw new ForbiddenError('Вы не автор этой карточки.');
+        throw new ForbiddenError(movieErrorsMessages.forbidden);
       }
       return movie;
     })
-    .then((movie) => Movie.deleteOne(movie))
+    .then((movie) => movie.deleteOne())
     .then((movie) => res.status(200).send(movie))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        return next(new NotFoundError('Карточка с указанным id не найдена.'));
+        return next(new NotFoundError(movieErrorsMessages.notfound));
       }
       if (err.name === 'CastError') {
-        return next(new RequestError('Передан некорректный id карточки.'));
+        return next(new RequestError(movieErrorsMessages.validation));
       }
       return next(err);
     });

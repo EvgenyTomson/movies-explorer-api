@@ -5,24 +5,19 @@ const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 
 const { PORT, DB_URI } = require('./config');
+const { corsOptions } = require('./constants/constants');
 
 const app = express();
 
 const catchErrorsMiddleware = require('./middlewares/catchErrors');
 const { requestLogger } = require('./middlewares/logger');
+const { apiRateLimiter } = require('./middlewares/rateLimiter');
 
-const allowedCors = [
-  'localhost:3000',
-  'http://localhost',
-  'http://localhost:3001',
-  'http://localhost:3000',
-];
-
-const corsOptions = {
-  origin: allowedCors,
-  optionsSuccessStatus: 200,
-  credentials: true,
-};
+// const corsOptions = {
+//   origin: allowedCors,
+//   optionsSuccessStatus: 200,
+//   credentials: true,
+// };
 
 app.use(express.json());
 
@@ -35,6 +30,8 @@ app.use(cookieParser());
 app.use(cors(corsOptions));
 
 app.use(helmet());
+
+app.use(apiRateLimiter);
 
 app.use('/', require('./routes/index'));
 

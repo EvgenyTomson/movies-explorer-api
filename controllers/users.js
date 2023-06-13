@@ -7,6 +7,7 @@ const ConflictError = require('../errors/conflictEror');
 const NotFoundError = require('../errors/notFoundError');
 const RequestError = require('../errors/requestError');
 const { secret } = require('../config');
+const { singoutMessage, userErrorsMessages } = require('../constants/constants');
 
 const findUser = (id, res, next) => {
   User.findById(id)
@@ -14,7 +15,7 @@ const findUser = (id, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        return next(new NotFoundError('Пользователь по указанному id не найден.'));
+        return next(new NotFoundError(userErrorsMessages.notfound));
       }
       return next(err);
     });
@@ -26,7 +27,10 @@ const changeUserData = (id, newData, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        return next(new NotFoundError('Пользователь по указанному id не найден.'));
+        return next(new NotFoundError(userErrorsMessages.notfound));
+      }
+      if (err.code === 11000) {
+        return next(new ConflictError(userErrorsMessages.conflict));
       }
       return next(err);
     });
@@ -51,10 +55,10 @@ module.exports.createUser = (req, res, next) => {
         })
         .catch((err) => {
           if (err.name === 'ValidationError') {
-            return next(new RequestError('Переданы некорректные данные при создании пользователя.'));
+            return next(new RequestError(userErrorsMessages.validation));
           }
           if (err.code === 11000) {
-            return next(new ConflictError('Пользователь с указанным e-mail уже зарегистрирован.'));
+            return next(new ConflictError(userErrorsMessages.conflict));
           }
           return next(err);
         });
@@ -67,13 +71,13 @@ module.exports.login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return next(new AuthError('Неправильные почта или пароль.'));
+        return next(new AuthError(userErrorsMessages.auth));
       }
 
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return next(new AuthError('Неправильные почта или пароль.'));
+            return next(new AuthError(userErrorsMessages.auth));
           }
 
           const token = jwt.sign(
@@ -101,5 +105,5 @@ module.exports.updateUser = (req, res, next) => {
 };
 
 module.exports.logout = (req, res) => {
-  res.clearCookie('jwt').send({ message: 'Bye!' });
+  res.clearCookie('jwt').send({ message: singoutMessage });
 };
