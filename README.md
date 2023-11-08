@@ -1,5 +1,13 @@
-# Бэкенд дипломного проекта на курсе "Вэб-разработчик"
-[Ссылка на репозиторий.](https://github.com/EvgenyTomson/movies-explorer-api)
+# Backend для сервиса поиска и сохранения избарнных фильмов    
+
+## Технологии  
+
+* Node.js (express)
+* MongoDB (mongoose)
+* REST API
+* JWT
+* Cookies
+* CORS
 
 ## Директории  
 
@@ -19,9 +27,3 @@
 `npm run start` — запускает сервер  
 
 `npm run dev` — запускает сервер с hot-reload  
-
-
-## Ссылки на проект
-
-IP 51.250.20.129
-https://api.tomson.nomoredomains.rocks
